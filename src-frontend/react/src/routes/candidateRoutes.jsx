@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import CandidateLayout from "../layouts/CandidateLayout";
 import CandidateLogin from "../pages/candidate/Login";
-import CandidateHome from "../pages/candidate/Home";
 import JobDetail from "../pages/candidate/JobDetail";
 import Profile from "../pages/candidate/Profile";
 import Dashboard from "../pages/candidate/Dashboard";
