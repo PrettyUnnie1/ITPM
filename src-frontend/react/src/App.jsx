@@ -3,6 +3,7 @@ import EmployerRoutes from "./routes/employerRoutes";
 import CandidateRoutes from "./routes/candidateRoutes";
 import AdminRoutes from "./routes/adminRoutes";
 import HomePage from "./HomePage";
+import CompaniesPage from "./pages/CompaniesPage";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         {/* Home chung */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/companies" element={<CompaniesPage />} />
 
         {/* Candidate */}
         <Route path="/candidate/*" element={<CandidateRoutes />} />
