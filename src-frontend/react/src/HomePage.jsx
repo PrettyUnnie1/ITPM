@@ -1,6 +1,21 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function HomePage() {
+  const navigate = useNavigate();
+
+  const [keyword, setKeyword] = useState("");
+  const [location, setLocation] = useState("Tất cả Tỉnh/Thành phố");
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+
+    if (keyword.trim() !== "") params.set("q", keyword.trim());
+    if (location) params.set("location", location);
+
+    navigate(`/jobs?${params.toString()}`);
+  };
+
   return (
     <div className="site-root">
       {/* NAVBAR */}
@@ -30,12 +45,10 @@ function HomePage() {
             🌐 <span>VI</span> ▼
           </div>
 
-          {/* Đăng ký / Đăng nhập ứng viên */}
           <Link to="/candidate/login" className="nav-link small">
             ĐĂNG NHẬP
           </Link>
 
-          {/* Nhà tuyển dụng */}
           <Link to="/employer/login" className="nav-btn employer-btn">
             DÀNH CHO NHÀ TUYỂN DỤNG →
           </Link>
@@ -55,20 +68,30 @@ function HomePage() {
               <input
                 className="search-input"
                 placeholder="Tìm kiếm việc làm"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
             </div>
 
             <div className="search-input-wrapper">
               <span className="search-icon">📍</span>
-              <select className="search-input">
+              <select
+                className="search-input"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              >
                 <option>Tất cả Tỉnh/Thành phố</option>
                 <option>Hồ Chí Minh</option>
                 <option>Hà Nội</option>
                 <option>Đà Nẵng</option>
+                <option>Cần Thơ</option>
               </select>
             </div>
 
-            <button className="search-btn">TÌM KIẾM</button>
+            <button className="search-btn" onClick={handleSearch}>
+              TÌM KIẾM
+            </button>
           </div>
         </div>
       </section>
