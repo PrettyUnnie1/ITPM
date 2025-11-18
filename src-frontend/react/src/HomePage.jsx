@@ -1,12 +1,34 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
+const ALL_LOCATIONS = [
+  "Tất cả Tỉnh/Thành phố",
+  "Hồ Chí Minh",
+  "Hà Nội",
+  "Đà Nẵng",
+  "Cần Thơ",
+  "Hải Phòng",
+  "Bình Dương",
+  "Đồng Nai",
+  "Remote"
+];
+
 function HomePage() {
+  const navigate = useNavigate();
   const [searchKeyword, setSearchKeyword] = useState("");
   const [location, setLocation] = useState("");
+  const [locationSearch, setLocationSearch] = useState("");
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const filteredLocations = ALL_LOCATIONS.filter((loc) =>
+    loc.toLowerCase().includes(locationSearch.toLowerCase())
+  );
 
   const handleSearch = () => {
+    const params = new URLSearchParams();
     console.log("Searching:", { searchKeyword, location });
+    if (searchKeyword.trim() !== "") params.set("q", searchKeyword.trim());
+    if (location) params.set("location", location);
+    navigate(`/jobs?${params.toString()}`);
   };
 
   // Mock job data
@@ -245,6 +267,7 @@ function HomePage() {
           {/* Search Box */}
           <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-3">
             <div className="flex flex-col md:flex-row gap-3">
+              {/* Ô search keyword */}
               <div className="flex-1 relative">
                 <svg
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -268,7 +291,9 @@ function HomePage() {
                 />
               </div>
 
+              {/* Ô Location + dropdown */}
               <div className="flex-1 relative">
+                {/* icon pin bên trái */}
                 <svg
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
                   fill="none"
@@ -288,15 +313,67 @@ function HomePage() {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <input
-                  type="text"
-                  placeholder="Location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
-                />
-              </div>
 
+                <div className="relative">
+                  {/* mũi tên nhỏ bên phải cho cảm giác dropdown */}
+                  <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400 text-xs">
+                    ▼
+                  </span>
+
+                  <input
+                    type="text"
+                    placeholder="Location" 
+                    value={locationSearch || location}
+                    onChange={(e) => {
+                      setLocationSearch(e.target.value);
+                      setIsLocationOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsLocationOpen(true);
+                    }}
+                    onBlur={() => {
+                      setTimeout(() => {
+                        setLocationSearch("");
+                        setIsLocationOpen(false);
+                      }, 150);
+                    }}
+                    className={`w-full pl-10 pr-8 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent
+                      ${
+                        !location && !locationSearch
+                          ? "text-gray-400"
+                          : "text-gray-900"
+                      }`}
+                  />
+
+                  {isLocationOpen && (
+                    <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                      {filteredLocations.length === 0 && (
+                        <li className="px-3 py-2 text-sm text-gray-500">
+                          Không tìm thấy địa điểm
+                        </li>
+                      )}
+
+                      {filteredLocations.map((loc) => (
+                        <li
+                          key={loc}
+                          onMouseDown={() => {
+                            // chọn location
+                            setLocation(loc);
+                            setLocationSearch("");
+                            setIsLocationOpen(false);
+                          }}
+                          className={`px-3 py-2 text-sm cursor-pointer hover:bg-indigo-50 ${
+                            loc === location ? "bg-indigo-100 font-semibold" : ""
+                          }`}
+                        >
+                          {loc}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+              {/* Nút search */}
               <button
                 onClick={handleSearch}
                 className="bg-indigo-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-indigo-700 transition-colors whitespace-nowrap"
