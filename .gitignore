@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# Build outputs
+dist/
+build/
+
+# Testing
+coverage/
+newman/
+*.tmp
+
+# Uploads directory (keep structure, ignore files)
+uploads/*/
+!uploads/*/.gitkeep

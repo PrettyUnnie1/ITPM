@@ -1,0 +1,121 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+config.json
+secrets.json
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Testing artifacts and reports
+newman-results.json
+newman-results.html
+newman/
+test-results/
+coverage/
+.coverage/
+
+# Postman/Newman files containing secrets
+*_env.json
+*_collection.json
+postman/environments/*.json
+postman/collections/*.json
+
+# Keep structure and documentation
+!postman/environments/README.md
+!postman/collections/README.md
+
+# Temporary files and uploads (generated during testing)
+uploads/resumes/*
+uploads/temp/
+temp/
+tmp/
+*.tmp
+*.temp
+
+# Keep folder structure but ignore upload contents
+!uploads/resumes/.gitkeep
+
+# Build outputs
+dist/
+build/
+out/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file (backup)
+.env.backup
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Local database files
+*.sqlite
+*.db
+*.sqlite3
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# Application specific
+cache/
+*.cache
