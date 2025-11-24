@@ -1,68 +1,20 @@
-const express = require("express");
-const cors = require("cors");
-const jobs = require("./data/jobs.json");
+const dotenv = require('dotenv');
+const connectDB = require('./src/config/db');
+const path = require('path'); // Add this for safe file paths
 
-const app = express();
-const PORT = 4000;
+// 1. Load Envs (Fixing the path issue we saw earlier)
+dotenv.config({ path: path.resolve(__dirname, './.env') });
 
-app.use(cors());
-app.use(express.json());
+// 2. Connect Database
+connectDB();
 
-// GET /api/jobs?q=&location=&page=&limit=
-app.get("/api/jobs", (req, res) => {
-  let { q, location, page = 1, limit = 20 } = req.query;
+// 3. Import the Configured App
+// (This file ALREADY contains your Middleware, CORS, and Routes)
+const app = require('./src/app');
 
-  page = Number(page) || 1;
-  limit = Number(limit) || 20;
-
-  let filtered = jobs;
-
-  // lọc theo keyword
-  if (q && q.trim() !== "") {
-    const keyword = q.toLowerCase();
-    filtered = filtered.filter(
-      (job) =>
-        job.title.toLowerCase().includes(keyword) ||
-        job.company.toLowerCase().includes(keyword) ||
-        job.category.toLowerCase().includes(keyword)
-    );
-  }
-
-  // lọc theo location
-  if (location && location !== "Tất cả Tỉnh/Thành phố") {
-    const loc = location.toLowerCase();
-    filtered = filtered.filter((job) =>
-      job.location.toLowerCase().includes(loc)
-    );
-  }
-
-  const total = filtered.length;
-
-  // phân trang
-  const start = (page - 1) * limit;
-  const end = start + limit;
-  const items = filtered.slice(start, end);
-
-  res.json({
-    total,
-    page,
-    limit,
-    items,
-  });
-});
-
-// GET /api/jobs/:id
-app.get("/api/jobs/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const job = jobs.find((j) => j.id === id);
-
-  if (!job) {
-    return res.status(404).json({ message: "Job not found" });
-  }
-
-  res.json(job);
-});
-
+// 4. Start Server
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Job API running at http://localhost:${PORT}`);
+    console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    console.log(`🔗 API Base URL: http://localhost:${PORT}/api/v1`);
 });
