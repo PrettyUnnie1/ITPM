@@ -4,6 +4,7 @@ import EmployerRoutes from "./routes/employerRoutes";
 import AdminRoutes from "./routes/adminRoutes";
 import HomePage from "./HomePage";
 import CompaniesPage from "./pages/CompaniesPage";
+import CompanyDetails from "./pages/CompanyDetails";
 import PublicJobSearch from "./pages/PublicJobSearch";
 import PublicJobDetail from "./pages/PublicJobDetail";
 import CandidateLogin from "./pages/candidate/Login";
@@ -24,6 +25,7 @@ function App() {
           <Route path="/jobs" element={<PublicJobSearch />} />
           <Route path="/jobs/:id" element={<PublicJobDetail />} />
           <Route path="/companies" element={<CompaniesPage />} />
+          <Route path="/companies/:id" element={<CompanyDetails />} />
           <Route path="/login" element={<CandidateLogin />} />
           <Route path="/register" element={<CandidateRegister />} />
 

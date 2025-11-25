@@ -154,6 +154,8 @@ export const jobSeekerAPI = {
   // Companies
   searchCompanies: (params) => api.get("/js/companies", { params }),
   getCompanyDetail: (id) => api.get(`/js/companies/${id}`),
+  getCompanyJobs: (id, params) =>
+    api.get(`/js/companies/${id}/jobs`, { params }),
   followCompany: (id) => api.post(`/js/companies/${id}/follow`),
   unfollowCompany: (id) => api.delete(`/js/companies/${id}/follow`),
   getFollowingCompanies: (params) =>
