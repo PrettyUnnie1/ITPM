@@ -93,7 +93,7 @@ function JobsNew() {
         salaryRange: {
           min: parseFloat(formData.salaryMin) || 0,
           max: parseFloat(formData.salaryMax) || 0,
-          currency: "USD",
+          currency: "VND",
         },
         requirements: formData.qualifications,
         responsibilities: formData.responsibilities,
@@ -101,14 +101,19 @@ function JobsNew() {
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
-        deadline: formData.deadline,
+        deadline: formData.deadline || undefined,
+        status: "open", // Explicitly set status to open
       };
 
+      console.log("Submitting job data:", data);
+
       if (view === "edit" && selectedJob) {
-        await employerAPI.updateJob(selectedJob._id, data);
+        const response = await employerAPI.updateJob(selectedJob._id, data);
+        console.log("Update response:", response);
         setMessage({ type: "success", text: "✓ Job updated successfully!" });
       } else {
-        await employerAPI.postJob(data);
+        const response = await employerAPI.postJob(data);
+        console.log("Post job response:", response);
         setMessage({ type: "success", text: "✓ Job posted successfully!" });
       }
 
