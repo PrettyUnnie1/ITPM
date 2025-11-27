@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import { useAuth } from "./context/AuthContext";
 import { VIETNAM_CITIES } from "./constants";
 import { jobSeekerAPI } from "./services/api";
@@ -22,12 +21,11 @@ function HomePage() {
 
   const fetchSearchSuggestions = useCallback(async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5001/api/js/jobs/search",
-        {
-          params: { keyword: searchKeyword, limit: 5, status: "open" },
-        }
-      );
+      const response = await jobSeekerAPI.searchJobs({
+        keyword: searchKeyword,
+        limit: 5,
+        status: "open",
+      });
       let jobsData =
         response.data?.data?.data || response.data?.data || response.data || [];
       setSearchSuggestions(Array.isArray(jobsData) ? jobsData : []);
@@ -138,13 +136,10 @@ function HomePage() {
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        "http://localhost:5001/api/js/jobs/search",
-        {
-          params: { limit: 6, page: 1 },
-        }
-      );
-      console.log("Jobs response:", response.data);
+      console.log("🌐 Fetching jobs from API:", import.meta.env.VITE_API_URL);
+
+      const response = await jobSeekerAPI.searchJobs({ limit: 6, page: 1 });
+      console.log("Jobs response:", response);
 
       // Try different response structures
       let jobsData =
@@ -156,9 +151,9 @@ function HomePage() {
         [];
 
       setJobs(Array.isArray(jobsData) ? jobsData : []);
-      console.log("Extracted jobs:", jobsData);
+      console.log("✅ Extracted jobs:", jobsData.length, "jobs");
     } catch (error) {
-      console.error("Error fetching jobs:", error);
+      console.error("❌ Error fetching jobs:", error);
       setJobs([]);
     } finally {
       setLoading(false);
@@ -167,13 +162,16 @@ function HomePage() {
 
   const fetchCompanies = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5001/api/js/companies",
-        {
-          params: { limit: 4, page: 1 },
-        }
+      console.log(
+        "🏢 Fetching companies from API:",
+        import.meta.env.VITE_API_URL
       );
-      console.log("Companies response:", response.data);
+
+      const response = await jobSeekerAPI.searchCompanies({
+        limit: 4,
+        page: 1,
+      });
+      console.log("Companies response:", response);
 
       // Try different response structures
       let companiesData =
@@ -185,9 +183,9 @@ function HomePage() {
         [];
 
       setCompanies(Array.isArray(companiesData) ? companiesData : []);
-      console.log("Extracted companies:", companiesData);
+      console.log("✅ Extracted companies:", companiesData.length, "companies");
     } catch (error) {
-      console.error("Error fetching companies:", error);
+      console.error("❌ Error fetching companies:", error);
       setCompanies([]);
     }
   };

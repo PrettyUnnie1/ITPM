@@ -15,6 +15,17 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Debug logging for production
+    if (config.method === 'post' && config.url.includes('/jobs')) {
+      console.log('API Request:', {
+        url: config.baseURL + config.url,
+        method: config.method,
+        data: config.data,
+        hasToken: !!token
+      });
+    }
+    
     return config;
   },
   (error) => {
@@ -26,6 +37,17 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    // Log error details for debugging
+    if (error.response) {
+      console.error('API Error Response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        url: error.config?.url,
+        method: error.config?.method
+      });
+    }
+    
     // Handle 401 - Unauthorized
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
