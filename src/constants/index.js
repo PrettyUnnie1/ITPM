@@ -62,29 +62,70 @@ export const VIETNAM_CITIES = [
   "Rạch Giá",
 ];
 
-// Job types
-export const JOB_TYPES = [
-  "Full-time",
-  "Part-time",
-  "Contract",
-  "Internship",
-  "Freelance",
-];
+// Job types (for display)
+export const JOB_TYPES = ["Full-time", "Part-time", "Contract", "Internship"];
 
-// Work modes
+// Job type mapping for API (backend uses: fulltime, parttime, contract, internship)
+export const JOB_TYPE_MAP = {
+  "Full-time": "fulltime",
+  "Part-time": "parttime",
+  Contract: "contract",
+  Internship: "internship",
+};
+
+// Reverse mapping for display
+export const JOB_TYPE_DISPLAY = {
+  fulltime: "Full-time",
+  parttime: "Part-time",
+  contract: "Contract",
+  internship: "Internship",
+};
+
+// Work modes (for display)
 export const WORK_MODES = ["On-site", "Remote", "Hybrid"];
 
-// Experience levels
+// Work mode mapping for API (backend uses: onsite, remote, hybrid)
+export const WORK_MODE_MAP = {
+  "On-site": "onsite",
+  Remote: "remote",
+  Hybrid: "hybrid",
+};
+
+// Reverse mapping for display
+export const WORK_MODE_DISPLAY = {
+  onsite: "On-site",
+  remote: "Remote",
+  hybrid: "Hybrid",
+};
+
+// Experience levels (for display)
 export const EXPERIENCE_LEVELS = [
   "Entry Level",
   "Junior",
   "Mid-Level",
   "Senior",
   "Lead",
-  "Manager",
-  "Director",
   "Executive",
 ];
+
+// Experience level mapping for API (backend uses: entry, mid, senior, lead, executive)
+export const EXPERIENCE_LEVEL_MAP = {
+  "Entry Level": "entry",
+  Junior: "mid", // Junior maps to mid
+  "Mid-Level": "mid",
+  Senior: "senior",
+  Lead: "lead",
+  Executive: "executive",
+};
+
+// Reverse mapping for display
+export const EXPERIENCE_LEVEL_DISPLAY = {
+  entry: "Entry Level",
+  mid: "Mid-Level",
+  senior: "Senior",
+  lead: "Lead",
+  executive: "Executive",
+};
 
 // Education levels
 export const EDUCATION_LEVELS = [

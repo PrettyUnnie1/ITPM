@@ -7,6 +7,12 @@ import {
   JOB_TYPES,
   WORK_MODES,
   EXPERIENCE_LEVELS,
+  JOB_TYPE_MAP,
+  WORK_MODE_MAP,
+  EXPERIENCE_LEVEL_MAP,
+  JOB_TYPE_DISPLAY,
+  WORK_MODE_DISPLAY,
+  EXPERIENCE_LEVEL_DISPLAY,
 } from "../../constants";
 
 function JobsNew() {
@@ -14,6 +20,8 @@ function JobsNew() {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [applicants, setApplicants] = useState([]);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [showCandidateModal, setShowCandidateModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -23,9 +31,9 @@ function JobsNew() {
   const [formData, setFormData] = useState({
     title: "",
     location: "",
-    workMode: "onsite",
-    jobType: "fulltime",
-    experienceLevel: "mid",
+    workMode: "On-site", // Display format
+    jobType: "Full-time", // Display format
+    experienceLevel: "Mid-Level", // Display format
     salaryMin: "",
     salaryMax: "",
     description: "",
@@ -87,9 +95,13 @@ function JobsNew() {
           country: "Vietnam",
           isRemote: formData.workMode === "remote",
         },
-        workMode: formData.workMode,
-        jobType: formData.jobType,
-        experienceLevel: formData.experienceLevel,
+        workMode:
+          WORK_MODE_MAP[formData.workMode] || formData.workMode.toLowerCase(),
+        jobType:
+          JOB_TYPE_MAP[formData.jobType] || formData.jobType.toLowerCase(),
+        experienceLevel:
+          EXPERIENCE_LEVEL_MAP[formData.experienceLevel] ||
+          formData.experienceLevel.toLowerCase(),
         salaryRange: {
           min: parseFloat(formData.salaryMin) || 0,
           max: parseFloat(formData.salaryMax) || 0,
@@ -139,9 +151,10 @@ function JobsNew() {
     setFormData({
       title: job.title || "",
       location: job.location?.city || job.location || "",
-      workMode: job.workMode || "onsite",
-      jobType: job.jobType || "fulltime",
-      experienceLevel: job.experienceLevel || "mid",
+      workMode: WORK_MODE_DISPLAY[job.workMode] || "On-site",
+      jobType: JOB_TYPE_DISPLAY[job.jobType] || "Full-time",
+      experienceLevel:
+        EXPERIENCE_LEVEL_DISPLAY[job.experienceLevel] || "Mid-Level",
       salaryMin: job.salaryRange?.min || "",
       salaryMax: job.salaryRange?.max || "",
       description: job.description || "",
@@ -197,9 +210,9 @@ function JobsNew() {
     setFormData({
       title: "",
       location: "",
-      workMode: "onsite",
-      jobType: "fulltime",
-      experienceLevel: "mid",
+      workMode: "On-site", // Display format
+      jobType: "Full-time", // Display format
+      experienceLevel: "Mid-Level", // Display format
       salaryMin: "",
       salaryMax: "",
       description: "",
@@ -220,6 +233,17 @@ function JobsNew() {
     });
   };
 
+  const handleViewCandidate = (application) => {
+    console.log("Viewing candidate:", application);
+    setSelectedCandidate(application);
+    setShowCandidateModal(true);
+  };
+
+  const closeCandidateModal = () => {
+    setShowCandidateModal(false);
+    setSelectedCandidate(null);
+  };
+
   // Filter jobs
   const filteredJobs = jobs.filter((job) => {
     const matchesSearch = job.title
@@ -236,14 +260,14 @@ function JobsNew() {
   if (view === "list") {
     const jobStats = {
       total: jobs.length,
-      active: jobs.filter((j) => j.status === "open").length,
+      open: jobs.filter((j) => j.status === "open").length,
       closed: jobs.filter((j) => j.status === "closed").length,
+      draft: jobs.filter((j) => j.status === "draft").length,
       totalApplications: jobs.reduce(
-        (sum, j) => sum + (j.applicationsCount || 0),
+        (sum, job) => sum + (job.totalApplications || 0),
         0
       ),
     };
-
     return (
       <div className="space-y-6">
         {/* Header with Stats */}
@@ -492,7 +516,7 @@ function JobsNew() {
                       className="px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg transition-all"
                     >
                       <span className="flex items-center space-x-2">
-                        <span>{job.applicationsCount || 0}</span>
+                        <span>{job.totalApplications || 0}</span>
                         <svg
                           className="w-5 h-5"
                           fill="none"
@@ -988,6 +1012,31 @@ function JobsNew() {
                   </div>
 
                   <div className="flex flex-col space-y-3 ml-6">
+                    <button
+                      onClick={() => handleViewCandidate(application)}
+                      className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-all flex items-center space-x-2"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                      <span>View Details</span>
+                    </button>
                     <select
                       value={application.status}
                       onChange={(e) =>
@@ -1010,6 +1059,404 @@ function JobsNew() {
             ))}
           </div>
         )}
+
+        {/* Candidate Detail Modal */}
+        {showCandidateModal &&
+          selectedCandidate &&
+          selectedCandidate.jobSeeker && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                {/* Header */}
+                <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-3xl font-bold">
+                        {selectedCandidate.jobSeeker?.fullName
+                          ?.charAt(0)
+                          .toUpperCase()}
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold">
+                          {selectedCandidate.jobSeeker?.fullName || "Unknown"}
+                        </h2>
+                        <p className="text-indigo-100">
+                          {selectedCandidate.jobSeeker?.email}
+                        </p>
+                        {selectedCandidate.jobSeeker?.phone && (
+                          <p className="text-indigo-100">
+                            📞 {selectedCandidate.jobSeeker.phone}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      onClick={closeCandidateModal}
+                      className="text-white hover:bg-white/20 rounded-lg p-2 transition-all"
+                    >
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 space-y-6">
+                  {/* Application Info */}
+                  <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200">
+                    <h3 className="font-bold text-gray-900 mb-2 flex items-center">
+                      <svg
+                        className="w-5 h-5 mr-2 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Application Details
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">Applied:</span>
+                        <span className="font-semibold ml-2">
+                          {formatDate(selectedCandidate.appliedAt)}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Status:</span>
+                        <span
+                          className={`ml-2 px-3 py-1 rounded-lg font-semibold text-xs ${
+                            selectedCandidate.status === "pending"
+                              ? "bg-blue-100 text-blue-700"
+                              : selectedCandidate.status === "reviewing"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : selectedCandidate.status === "interview"
+                              ? "bg-purple-100 text-purple-700"
+                              : selectedCandidate.status === "accepted"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {selectedCandidate.status.charAt(0).toUpperCase() +
+                            selectedCandidate.status.slice(1)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cover Letter */}
+                  {selectedCandidate.coverLetter && (
+                    <div>
+                      <h3 className="font-bold text-gray-900 mb-3 flex items-center">
+                        <svg
+                          className="w-5 h-5 mr-2 text-indigo-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        Cover Letter
+                      </h3>
+                      <div className="bg-gray-50 rounded-lg p-4 text-gray-700 leading-relaxed">
+                        {selectedCandidate.coverLetter}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Resume */}
+                  {selectedCandidate.jobSeeker?.resumes &&
+                    selectedCandidate.jobSeeker.resumes.length > 0 && (
+                      <div>
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center">
+                          <svg
+                            className="w-5 h-5 mr-2 text-indigo-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                          Resume/CV
+                        </h3>
+                        <div className="space-y-2">
+                          {selectedCandidate.jobSeeker.resumes.map(
+                            (resume, index) => (
+                              <a
+                                key={index}
+                                href={resume.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-between p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg border-2 border-indigo-200 transition-all group"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                    <svg
+                                      className="w-6 h-6 text-white"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                      />
+                                    </svg>
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold text-gray-900">
+                                      {resume.name || `Resume ${index + 1}`}
+                                    </p>
+                                    {resume.uploadedAt && (
+                                      <p className="text-sm text-gray-600">
+                                        Uploaded {formatDate(resume.uploadedAt)}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <svg
+                                  className="w-5 h-5 text-indigo-600 group-hover:translate-x-1 transition-transform"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
+                                </svg>
+                              </a>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Location */}
+                  {selectedCandidate.jobSeeker?.location && (
+                    <div>
+                      <h3 className="font-bold text-gray-900 mb-3 flex items-center">
+                        <svg
+                          className="w-5 h-5 mr-2 text-indigo-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                        </svg>
+                        Location
+                      </h3>
+                      <p className="text-gray-700 bg-gray-50 rounded-lg p-3">
+                        {selectedCandidate.jobSeeker.location}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Skills */}
+                  {selectedCandidate.jobSeeker?.skills &&
+                    selectedCandidate.jobSeeker.skills.length > 0 && (
+                      <div>
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center">
+                          <svg
+                            className="w-5 h-5 mr-2 text-indigo-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                            />
+                          </svg>
+                          Skills
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedCandidate.jobSeeker.skills.map(
+                            (skill, index) => (
+                              <span
+                                key={index}
+                                className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-semibold text-sm"
+                              >
+                                {skill}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Experience */}
+                  {selectedCandidate.jobSeeker?.experiences &&
+                    selectedCandidate.jobSeeker.experiences.length > 0 && (
+                      <div>
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center">
+                          <svg
+                            className="w-5 h-5 mr-2 text-indigo-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            />
+                          </svg>
+                          Work Experience
+                        </h3>
+                        <div className="space-y-4">
+                          {selectedCandidate.jobSeeker.experiences.map(
+                            (exp, index) => (
+                              <div
+                                key={index}
+                                className="bg-gray-50 rounded-lg p-4 border-l-4 border-indigo-600"
+                              >
+                                <h4 className="font-bold text-gray-900">
+                                  {exp.title}
+                                </h4>
+                                <p className="text-indigo-600 font-semibold">
+                                  {exp.company}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  {exp.startDate} - {exp.endDate || "Present"}
+                                </p>
+                                {exp.description && (
+                                  <p className="text-gray-700 mt-2">
+                                    {exp.description}
+                                  </p>
+                                )}
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Education */}
+                  {selectedCandidate.jobSeeker?.education &&
+                    selectedCandidate.jobSeeker.education.length > 0 && (
+                      <div>
+                        <h3 className="font-bold text-gray-900 mb-3 flex items-center">
+                          <svg
+                            className="w-5 h-5 mr-2 text-indigo-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 14l9-5-9-5-9 5 9 5z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+                            />
+                          </svg>
+                          Education
+                        </h3>
+                        <div className="space-y-4">
+                          {selectedCandidate.jobSeeker.education.map(
+                            (edu, index) => (
+                              <div
+                                key={index}
+                                className="bg-gray-50 rounded-lg p-4 border-l-4 border-purple-600"
+                              >
+                                <h4 className="font-bold text-gray-900">
+                                  {edu.degree}
+                                </h4>
+                                <p className="text-purple-600 font-semibold">
+                                  {edu.institution}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  {edu.startDate} - {edu.endDate || "Present"}
+                                </p>
+                                {edu.field && (
+                                  <p className="text-gray-700 mt-1">
+                                    Field: {edu.field}
+                                  </p>
+                                )}
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+                </div>
+
+                {/* Footer Actions */}
+                <div className="sticky bottom-0 bg-gray-50 p-6 rounded-b-2xl border-t-2 border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={closeCandidateModal}
+                      className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all"
+                    >
+                      Close
+                    </button>
+                    <div className="flex items-center space-x-3">
+                      <select
+                        value={selectedCandidate.status}
+                        onChange={(e) => {
+                          handleUpdateApplicationStatus(
+                            selectedCandidate._id,
+                            e.target.value
+                          );
+                          closeCandidateModal();
+                        }}
+                        className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-semibold"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="reviewing">Reviewing</option>
+                        <option value="interview">Interview</option>
+                        <option value="accepted">Accepted</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
       </div>
     );
   }
