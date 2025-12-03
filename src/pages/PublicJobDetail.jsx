@@ -85,14 +85,14 @@ function PublicJobDetail() {
       setError("");
 
       const response = await axios.get(
-        `http://localhost:5001/api/js/jobs/${id}`
+        `http://localhost:5000/api/js/jobs/${id}`
       );
       setJob(response.data?.data || response.data);
 
       // Fetch similar jobs
       try {
         const similarResponse = await axios.get(
-          "http://localhost:5001/api/js/jobs/search",
+          "http://localhost:5000/api/js/jobs/search",
           {
             params: { limit: 3, status: "open" },
           }

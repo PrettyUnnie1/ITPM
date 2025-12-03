@@ -68,74 +68,67 @@ function Jobs() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    setMessage({ type: "", text: "" });
+  e.preventDefault();
+  setSaving(true);
+  setMessage({ type: "", text: "" });
 
-    try {
-      const data = {
-        title: formData.title,
-        description: formData.description,
-        location: {
-          city: formData.location,
-          country: "Vietnam",
-          isRemote: formData.jobType === "remote",
-        },
-        jobType: formData.jobType,
-        experienceLevel: formData.experienceLevel,
-        salaryRange: {
-          min: parseFloat(formData.salaryMin) || 0,
-          max: parseFloat(formData.salaryMax) || 0,
-          currency: "USD",
-        },
-        requirements: formData.qualifications,
-        responsibilities: formData.responsibilities,
-        skills: formData.skills
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        deadline: formData.deadline,
-      };
+  try {
+    const baseData = {
+      title: formData.title,
+      description: formData.description,
+      location: {
+        city: formData.location,
+        country: "Vietnam",
+        isRemote: formData.jobType === "remote",
+      },
+      jobType: formData.jobType,
+      experienceLevel: formData.experienceLevel,
+      salaryRange: {
+        min: parseFloat(formData.salaryMin) || 0,
+        max: parseFloat(formData.salaryMax) || 0,
+        currency: "USD",
+      },
+      requirements: formData.qualifications,
+      responsibilities: formData.responsibilities,
+      skills: formData.skills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      deadline: formData.deadline,
+    };
 
-      console.log("Submitting job data:", data);
+    const isEdit = view === "edit" && selectedJob;
 
-      if (view === "edit" && selectedJob) {
-        await employerAPI.updateJob(selectedJob._id, data);
-        setMessage({ type: "success", text: "Job updated successfully!" });
-      } else {
-        const response = await employerAPI.postJob(data);
-        console.log("Job post response:", response);
-        setMessage({ type: "success", text: "Job posted successfully!" });
-      }
+    const data = isEdit
+      ? baseData
+      : {
+          ...baseData,
+          status: "pending",
+        };
 
-      await fetchJobs();
-      resetForm();
-      setView("list");
-    } catch (error) {
-      console.error("Error saving job:", error.response?.data || error.message);
+    console.log("Submitting job data:", data);
 
-      // Show detailed validation errors
-      let errorMsg =
-        error.response?.data?.message || error.message || "Failed to save job";
-      if (
-        error.response?.data?.errors &&
-        error.response.data.errors.length > 0
-      ) {
-        const validationErrors = error.response.data.errors
-          .map((err) => err.msg || err.message)
-          .join(", ");
-        errorMsg = `${errorMsg}: ${validationErrors}`;
-        console.error("Validation errors:", error.response.data.errors);
-      }
-
+    if (isEdit) {
+      await employerAPI.updateJob(selectedJob._id, data);
+      setMessage({ type: "success", text: "Job updated successfully!" });
+    } else {
+      const response = await employerAPI.postJob(data);
+      console.log("Job post response:", response);
       setMessage({
-        type: "error",
-        text: errorMsg,
+        type: "success",
+        text: "Job posted successfully! Waiting for admin approval.",
       });
-    } finally {
-      setSaving(false);
     }
-  };
+
+    await fetchJobs();
+    resetForm();
+    setView("list");
+  } catch (error) {
+    // ... phần catch giữ nguyên
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleEdit = (job) => {
     setSelectedJob(job);

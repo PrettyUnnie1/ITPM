@@ -1,4 +1,5 @@
 import axios from "axios";
+//import { adminLogin } from "../../JobMatch-BE/src/controllers/admin.controller";
 
 // Create axios instance with base URL
 const api = axios.create({
@@ -67,6 +68,8 @@ export const authAPI = {
   login: (data) => api.post("/auth/login", data),
   getMe: () => api.get("/auth/me"),
   updatePassword: (data) => api.put("/auth/password", data),
+  adminLogin: (email, password) =>
+    api.post("/admin/login", { email, password }),
 };
 
 // ============= ADMIN API =============
@@ -80,6 +83,9 @@ export const adminAPI = {
   getReports: (params) => api.get("/admin/reports", { params }),
   updateReportStatus: (id, data) => api.patch(`/admin/reports/${id}`, data),
   getStats: () => api.get("/admin/stats"),
+  getPendingJobs: () => api.get("/admin/jobs/pending"),
+  approveJob: (id) => api.patch(`/admin/jobs/${id}/approve`),
+  rejectJob: (id) => api.patch(`/admin/jobs/${id}/reject`),
 };
 
 // ============= EMPLOYER API =============

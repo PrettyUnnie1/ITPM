@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// ❌ Không cần nữa nếu login local, bạn có thể xoá dòng dưới
-// import { authAPI } from "../../services/api";
+import { authAPI } from "../../services/api";
 
 function AdminLogin() {
   const navigate = useNavigate();
@@ -20,38 +19,48 @@ function AdminLogin() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      // ✅ Check tài khoản cố định ở đây
-      if (formData.email === "admin" && formData.password === "admin") {
-        // Lưu token và thông tin admin giả lập
-        localStorage.setItem("adminToken", "static_admin_token");
-        localStorage.setItem(
-          "adminUser",
-          JSON.stringify({
-            email: "admin",
-            name: "Administrator",
-            role: "admin",
-          })
-        );
+  try {
+    const response = await authAPI.adminLogin(
+      formData.email,
+      formData.password
+    );
 
-        // Điều hướng sang dashboard
-        navigate("/admin/dashboard");
-      } else {
-        setError("Sai tài khoản hoặc mật khẩu!");
+    console.log("Admin login response:", response);
+
+    if (response.success) {
+      const { token, admin } = response.data || {};
+
+      if (!token) {
+        throw new Error("No token returned from admin login");
       }
 
-      // Nếu sau này dùng API thật, bạn chỉ cần thay block trên
-      // bằng đoạn gọi authAPI như trước là xong.
-    } catch (err) {
-      setError("Đã xảy ra lỗi, vui lòng thử lại.");
-    } finally {
-      setLoading(false);
+      // Token cho axios (Authorization: Bearer ...)
+      localStorage.setItem("token", token);
+      // Flag cho AdminProtectedRoute
+      localStorage.setItem("adminToken", token);
+      if (admin) {
+        localStorage.setItem("adminUser", JSON.stringify(admin));
+      }
+
+      navigate("/admin/dashboard");
+    } else {
+      setError(response.message || "Login failed");
     }
-  };
+  } catch (err) {
+    console.error("Admin login error:", err);
+    setError(
+      err.response?.data?.message ||
+        err.message ||
+        "An error occurred. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-neutral-light flex items-center justify-center px-4">
@@ -86,7 +95,7 @@ function AdminLogin() {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-neutral-light rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                placeholder=""
+                placeholder="admin@jobmatch.com"
               />
             </div>
 
@@ -105,7 +114,7 @@ function AdminLogin() {
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-neutral-light rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                placeholder=""
+                placeholder="••••••••"
               />
             </div>
 

@@ -138,19 +138,40 @@ function HomePage() {
       setLoading(true);
       console.log("🌐 Fetching jobs from API:", import.meta.env.VITE_API_URL);
 
-      const response = await jobSeekerAPI.searchJobs({ limit: 6, page: 1 });
+      const response = await jobSeekerAPI.searchJobs({
+        limit: 6,
+        page: 1,
+        status: "open",          
+      });
       console.log("Jobs response:", response);
 
-      // Try different response structures
       let jobsData =
-        response.data?.data?.jobs || // Paginated response with jobs key
-        response.data?.data?.data || // Nested data.data.data
-        response.data?.jobs || // Direct jobs key
-        response.data?.data || // data.data array
-        response.data || // Direct data array
+        response.data?.data?.jobs ||
+        response.data?.data?.data ||
+        response.data?.jobs ||
+        response.data?.data ||
+        response.data ||
         [];
 
-      setJobs(Array.isArray(jobsData) ? jobsData : []);
+      // Thêm 1 lớp filter phòng khi backend vẫn trả cả pending
+      jobsData = (Array.isArray(jobsData) ? jobsData : []).filter((job) => {
+        if (!job) return false;
+
+        // Nếu job có field status
+        if (job.status) {
+          return job.status === "open" || job.status === "approved";
+        }
+
+        // Nếu job dùng isApproved: true/false
+        if (typeof job.isApproved === "boolean") {
+          return job.isApproved;
+        }
+
+        // Nếu schema cũ chưa có status/isApproved thì tạm cho qua
+        return true;
+      });
+
+      setJobs(jobsData);
       console.log("✅ Extracted jobs:", jobsData.length, "jobs");
     } catch (error) {
       console.error("❌ Error fetching jobs:", error);
@@ -159,6 +180,7 @@ function HomePage() {
       setLoading(false);
     }
   };
+
 
   const fetchCompanies = async () => {
     try {
