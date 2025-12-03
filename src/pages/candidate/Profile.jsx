@@ -21,7 +21,7 @@ function Profile() {
   const fetchProfile = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/js/profile", {
+      const response = await axios.get("http://localhost:5001/api/js/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -90,7 +90,7 @@ function Profile() {
       // This reduces the time and number of requests hitting the rate limit
       const requests = [
         axios.patch(
-          "http://localhost:5000/api/js/profile/general",
+          "http://localhost:5001/api/js/profile/general",
           {
             firstName,
             lastName,

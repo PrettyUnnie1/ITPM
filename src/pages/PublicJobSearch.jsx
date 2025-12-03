@@ -112,7 +112,7 @@ function PublicJobSearch() {
       params.status = "open";
 
       const response = await axios.get(
-        "http://localhost:5000/api/js/jobs/search",
+        "http://localhost:5001/api/js/jobs/search",
         {
           params,
         }

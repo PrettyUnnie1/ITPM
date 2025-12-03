@@ -28,7 +28,7 @@ function CompaniesPage() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost:5000/api/js/companies",
+        "http://localhost:5001/api/js/companies",
         {
           params: { limit: 100 },
         }

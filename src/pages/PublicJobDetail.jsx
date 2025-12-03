@@ -85,14 +85,14 @@ function PublicJobDetail() {
       setError("");
 
       const response = await axios.get(
-        `http://localhost:5000/api/js/jobs/${id}`
+        `http://localhost:5001/api/js/jobs/${id}`
       );
       setJob(response.data?.data || response.data);
 
       // Fetch similar jobs
       try {
         const similarResponse = await axios.get(
-          "http://localhost:5000/api/js/jobs/search",
+          "http://localhost:5001/api/js/jobs/search",
           {
             params: { limit: 3, status: "open" },
           }
@@ -644,18 +644,29 @@ function PublicJobDetail() {
                 )}
               </div>
 
-              <Link
-                to={`/login?redirect=/jobs/${id}`}
-                className="w-full mt-6 block text-center py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                Apply for This Job
-              </Link>
-              <Link
-                to="/register"
-                className="w-full mt-3 block text-center py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
-              >
-                Create Account
-              </Link>
+              {user && (user.role === "jobseeker" || user.role === "js") ? (
+                <button
+                  onClick={() => setShowApplyModal(true)}
+                  className="w-full mt-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  Apply for This Job
+                </button>
+              ) : (
+                <>
+                  <Link
+                    to={`/login?redirect=/jobs/${id}`}
+                    className="w-full mt-6 block text-center py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    Apply for This Job
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="w-full mt-3 block text-center py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
+                  >
+                    Create Account
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Similar Jobs */}
